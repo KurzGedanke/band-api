@@ -4,8 +4,7 @@ namespace App\Controller\Admin;
 
 use App\Entity\Stage;
 use EasyCorp\Bundle\EasyAdminBundle\Controller\AbstractCrudController;
-use EasyCorp\Bundle\EasyAdminBundle\Field\IdField;
-use EasyCorp\Bundle\EasyAdminBundle\Field\TextEditorField;
+use EasyCorp\Bundle\EasyAdminBundle\Field\AssociationField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
 
 class StageCrudController extends AbstractCrudController
@@ -15,14 +14,14 @@ class StageCrudController extends AbstractCrudController
         return Stage::class;
     }
 
-    /*
+    
     public function configureFields(string $pageName): iterable
     {
         return [
-            IdField::new('id'),
-            TextField::new('title'),
-            TextEditorField::new('description'),
-        ];
+            TextField::new('name'),
+            TextField::new('location'),
+            AssociationField::new('timeSlots'),
+            AssociationField::new('festival'),
+            ];
     }
-    */
 }

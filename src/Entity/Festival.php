@@ -28,9 +28,13 @@ class Festival
     #[ORM\Column(length: 255)]
     private ?string $name = null;
 
+    #[ORM\OneToMany(targetEntity: Stage::class, mappedBy: 'festival')]
+    private Collection $stages;
+
     public function __construct()
     {
         $this->bands = new ArrayCollection();
+        $this->stages = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -101,5 +105,35 @@ class Festival
     public function __toString()
     {
         return $this->name;
+    }
+
+    /**
+     * @return Collection<int, Stage>
+     */
+    public function getStages(): Collection
+    {
+        return $this->stages;
+    }
+
+    public function addStage(Stage $stage): static
+    {
+        if (!$this->stages->contains($stage)) {
+            $this->stages->add($stage);
+            $stage->setFestival($this);
+        }
+
+        return $this;
+    }
+
+    public function removeStage(Stage $stage): static
+    {
+        if ($this->stages->removeElement($stage)) {
+            // set the owning side to null (unless already changed)
+            if ($stage->getFestival() === $this) {
+                $stage->setFestival(null);
+            }
+        }
+
+        return $this;
     }
 }
