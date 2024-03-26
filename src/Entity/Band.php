@@ -45,9 +45,13 @@ class Band
     #[ORM\ManyToMany(targetEntity: Festival::class, mappedBy: 'bands', cascade: ['persist'])]
     private Collection $festivals;
 
+    #[ORM\OneToMany(targetEntity: TimeSlot::class, mappedBy: 'band')]
+    private Collection $timeSlots;
+
     public function __construct()
     {
         $this->festivals = new ArrayCollection();
+        $this->timeSlots = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -193,5 +197,35 @@ class Band
     public function __toString(): string
     {
         return $this->Name;
+    }
+
+    /**
+     * @return Collection<int, TimeSlot>
+     */
+    public function getTimeSlots(): Collection
+    {
+        return $this->timeSlots;
+    }
+
+    public function addTimeSlot(TimeSlot $timeSlot): static
+    {
+        if (!$this->timeSlots->contains($timeSlot)) {
+            $this->timeSlots->add($timeSlot);
+            $timeSlot->setBand($this);
+        }
+
+        return $this;
+    }
+
+    public function removeTimeSlot(TimeSlot $timeSlot): static
+    {
+        if ($this->timeSlots->removeElement($timeSlot)) {
+            // set the owning side to null (unless already changed)
+            if ($timeSlot->getBand() === $this) {
+                $timeSlot->setBand(null);
+            }
+        }
+
+        return $this;
     }
 }
