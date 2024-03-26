@@ -78,4 +78,9 @@ class TimeSlot
 
         return $this;
     }
+    
+    public function __toString(): string
+    {
+      return date_format($this->startTime, "d H:i");
+    }
 }

@@ -24,5 +24,4 @@ class TimeSlotCrudController extends AbstractCrudController
             AssociationField::new('band'),
         ];
     }
-   
 }
