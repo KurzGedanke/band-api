@@ -13,4 +13,12 @@ jobs:
         username: ${{ secrets.USERNAME }}
         key: ${{ secrets.KEY }}
         port: ${{ secrets.PORT }}
-        script: whoami
+        script: pwd
+      
+    - name: download artifact to server
+      uses: actions/download-artifact@v4
+      with:
+        name: artifact
+        path: /home/band/tmp
+    - name: Display structure of downloaded files
+      run: ls -R /home/band/tmp
