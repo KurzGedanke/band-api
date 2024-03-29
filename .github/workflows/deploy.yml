@@ -69,13 +69,13 @@ jobs:
           rm -rf /var/www/virtual/band/band-api/vendor
           rm -rf /var/www/virtual/band/band-api/src
           rm -rf /var/www/virtual/band/band-api/templates
-          rm -rf /var/www/virtual/band/band-api/translation
+          rm -rf /var/www/virtual/band/band-api/translations
           rm -rf /var/www/virtual/band/band-api/assets
           rm -rf /var/www/virtual/band/band-api/config
           rm -rf /var/www/virtual/band/band-api/migrations
           rm -rf /var/www/virtual/band/band-api/public/bundles
         
-    - name: remove folder
+    - name: move folder
       uses: appleboy/ssh-action@v1.0.3
       with:
         host: ${{ secrets.HOST }}
@@ -86,13 +86,25 @@ jobs:
           mv /home/band/tmp/tmp/vendor /var/www/virtual/band/band-api
           mv /home/band/tmp/tmp/src /var/www/virtual/band/band-api
           mv /home/band/tmp/tmp/templates /var/www/virtual/band/band-api
-          mv /home/band/tmp/tmp/translation /var/www/virtual/band/band-api
+          mv /home/band/tmp/tmp/translations /var/www/virtual/band/band-api
           mv /home/band/tmp/tmp/assets /var/www/virtual/band/band-api
           mv /home/band/tmp/tmp/config /var/www/virtual/band/band-api
           mv /home/band/tmp/tmp/migrations /var/www/virtual/band/band-api
           mv /home/band/tmp/tmp/public/bundles /var/www/virtual/band/band-api/public
+    
+    - name: cache cleanup 
+      uses: appleboy/ssh-action@v1.0.3
+      with:
+        host: ${{ secrets.HOST }}
+        username: ${{ secrets.USERNAME }}
+        key: ${{ secrets.KEY }}
+        port: ${{ secrets.PORT }}
+        script: |
+          cd /var/www/virtual/band/band-api
+          bin/console cache:clear
+          bin/console cache:warumup
       
-    - name: remove folder
+    - name: cleanup folder
       uses: appleboy/ssh-action@v1.0.3
       with:
         host: ${{ secrets.HOST }}
