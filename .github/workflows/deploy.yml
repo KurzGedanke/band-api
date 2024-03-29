@@ -66,14 +66,14 @@ jobs:
         key: ${{ secrets.KEY }}
         port: ${{ secrets.PORT }}
         script: |
-        rm -rf /var/www/virtual/band/band-api/vendor
-        rm -rf /var/www/virtual/band/band-api/src
-        rm -rf /var/www/virtual/band/band-api/templates
-        rm -rf /var/www/virtual/band/band-api/translation
-        rm -rf /var/www/virtual/band/band-api/assets
-        rm -rf /var/www/virtual/band/band-api/config
-        rm -rf /var/www/virtual/band/band-api/migrations
-        rm -rf /var/www/virtual/band/band-api/public/bundles
+          rm -rf /var/www/virtual/band/band-api/vendor
+          rm -rf /var/www/virtual/band/band-api/src
+          rm -rf /var/www/virtual/band/band-api/templates
+          rm -rf /var/www/virtual/band/band-api/translation
+          rm -rf /var/www/virtual/band/band-api/assets
+          rm -rf /var/www/virtual/band/band-api/config
+          rm -rf /var/www/virtual/band/band-api/migrations
+          rm -rf /var/www/virtual/band/band-api/public/bundles
         
     - name: remove folder
       uses: appleboy/ssh-action@v1.0.3
@@ -83,14 +83,14 @@ jobs:
         key: ${{ secrets.KEY }}
         port: ${{ secrets.PORT }}
         script: |
-        mv /home/band/tmp/tmp/vendor /var/www/virtual/band/band-api
-        mv /home/band/tmp/tmp/src /var/www/virtual/band/band-api
-        mv /home/band/tmp/tmp/templates /var/www/virtual/band/band-api
-        mv /home/band/tmp/tmp/translation /var/www/virtual/band/band-api
-        mv /home/band/tmp/tmp/assets /var/www/virtual/band/band-api
-        mv /home/band/tmp/tmp/config /var/www/virtual/band/band-api
-        mv /home/band/tmp/tmp/migrations /var/www/virtual/band/band-api
-        mv /home/band/tmp/tmp/public/bundles /var/www/virtual/band/band-api/public
+          mv /home/band/tmp/tmp/vendor /var/www/virtual/band/band-api
+          mv /home/band/tmp/tmp/src /var/www/virtual/band/band-api
+          mv /home/band/tmp/tmp/templates /var/www/virtual/band/band-api
+          mv /home/band/tmp/tmp/translation /var/www/virtual/band/band-api
+          mv /home/band/tmp/tmp/assets /var/www/virtual/band/band-api
+          mv /home/band/tmp/tmp/config /var/www/virtual/band/band-api
+          mv /home/band/tmp/tmp/migrations /var/www/virtual/band/band-api
+          mv /home/band/tmp/tmp/public/bundles /var/www/virtual/band/band-api/public
       
     - name: remove folder
       uses: appleboy/ssh-action@v1.0.3
@@ -100,4 +100,4 @@ jobs:
         key: ${{ secrets.KEY }}
         port: ${{ secrets.PORT }}
         script: |
-        rm -rf /home/band/tmp/tmp
+          rm -rf /home/band/tmp/tmp
