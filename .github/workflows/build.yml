@@ -49,3 +49,4 @@ jobs:
           assets
           config
           migrations
+          public
