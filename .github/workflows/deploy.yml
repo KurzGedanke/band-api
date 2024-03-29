@@ -102,7 +102,7 @@ jobs:
         script: |
           cd /var/www/virtual/band/band-api
           bin/console cache:clear
-          bin/console cache:warumup
+          bin/console cache:warmup
       
     - name: cleanup folder
       uses: appleboy/ssh-action@v1.0.3
