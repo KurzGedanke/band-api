@@ -42,7 +42,7 @@ jobs:
           migrations
           public
 
-    - name: executing remote ssh commands using password
+    - name: executing remote ssh commands using key
       uses: appleboy/ssh-action@v1.0.3
       with:
         host: ${{ secrets.HOST }}
@@ -57,4 +57,4 @@ jobs:
         name: artifact
         path: tmp
     - name: Display structure of downloaded files
-      run: ls -R /home/band/tmp
+      run: ls -R tmp
