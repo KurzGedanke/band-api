@@ -202,30 +202,30 @@ class Band
     /**
      * @return Collection<int, TimeSlot>
      */
-    public function getTimeSlots(): Collection
-    {
-        return $this->timeSlots;
-    }
+    // public function getTimeSlots(): Collection
+    // {
+    //     return $this->timeSlots;
+    // }
 
-    public function addTimeSlot(TimeSlot $timeSlot): static
-    {
-        if (!$this->timeSlots->contains($timeSlot)) {
-            $this->timeSlots->add($timeSlot);
-            $timeSlot->setBand($this);
-        }
+//     public function addTimeSlot(TimeSlot $timeSlot): static
+//     {
+//         if (!$this->timeSlots->contains($timeSlot)) {
+//             $this->timeSlots->add($timeSlot);
+//             $timeSlot->setBand($this);
+//         }
+// 
+//         return $this;
+//     }
 
-        return $this;
-    }
-
-    public function removeTimeSlot(TimeSlot $timeSlot): static
-    {
-        if ($this->timeSlots->removeElement($timeSlot)) {
-            // set the owning side to null (unless already changed)
-            if ($timeSlot->getBand() === $this) {
-                $timeSlot->setBand(null);
-            }
-        }
-
-        return $this;
-    }
+//     public function removeTimeSlot(TimeSlot $timeSlot): static
+//     {
+//         if ($this->timeSlots->removeElement($timeSlot)) {
+//             // set the owning side to null (unless already changed)
+//             if ($timeSlot->getBand() === $this) {
+//                 $timeSlot->setBand(null);
+//             }
+//         }
+// 
+//         return $this;
+//     }
 }
