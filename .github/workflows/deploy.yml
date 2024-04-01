@@ -102,6 +102,7 @@ jobs:
         script: |
           cd /var/www/virtual/band/band-api
           bin/console cache:clear
+          bin/console --no-interaction doctrine:migrations:migrate
           bin/console cache:warmup
       
     - name: cleanup folder
