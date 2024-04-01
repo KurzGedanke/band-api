@@ -93,7 +93,7 @@ class FestivalApiController extends AbstractController
         $festivals = $festivalRepository->findOneBy(['name' => $festival]);
     
         $stage = $stageRepository->findBy(['name' => $stageName, 'festival' => $festivals]);
-        $timeSlots = $timeSlotRepository->findBy(['stage' => $stage], ['startTime' => 'DESC']);
+        $timeSlots = $timeSlotRepository->findBy(['stage' => $stage], ['startTime' => 'ASC']);
         
         $timeSlotArray = [];
         
