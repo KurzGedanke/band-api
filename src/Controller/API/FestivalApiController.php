@@ -23,7 +23,7 @@ class FestivalApiController extends AbstractController
         return JsonResponse::fromJsonString($serializer->serializeCircularReferenceJson($festivals));
     }
     
-    #[Route('/api/festival/{festival}/{bandSlug}', name: 'festival-band')]
+    #[Route('/api/festivals/{festival}/{bandSlug}', name: 'festival-band')]
     public function listFestivalBand(BandRepository $bandRepository, string $bandSlug, string $festival, Request $request): JsonResponse
     {
         $serializer = new SerializerService();
