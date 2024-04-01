@@ -20,6 +20,7 @@ class BandCrudController extends AbstractCrudController
     {
         return [
             TextField::new('name'),
+            TextField::new('slug'),
             TextField::new('genre'),
             ImageField::new('image')
                 ->setRequired(false)

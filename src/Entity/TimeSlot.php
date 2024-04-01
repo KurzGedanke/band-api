@@ -25,6 +25,8 @@ class TimeSlot
 
     #[ORM\ManyToOne(inversedBy: 'timeSlots')]
     private ?Stage $stage = null;
+    
+    private ?Festival $festival = null;
 
     public function getId(): ?int
     {
@@ -77,6 +79,16 @@ class TimeSlot
         $this->stage = $stage;
 
         return $this;
+    }
+    
+    public function getFestival(): ?Festival
+    {
+      return $this->stage->getFestival();
+    }
+    
+    public function getname(): string
+    {
+      return date_format($this->startTime, "d H:i");
     }
     
     public function __toString(): string

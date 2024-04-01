@@ -48,6 +48,9 @@ class Band
     #[ORM\OneToMany(targetEntity: TimeSlot::class, mappedBy: 'band')]
     private Collection $timeSlots;
 
+    #[ORM\Column(length: 255)]
+    private ?string $slug = null;
+
     public function __construct()
     {
         $this->festivals = new ArrayCollection();
@@ -202,30 +205,42 @@ class Band
     /**
      * @return Collection<int, TimeSlot>
      */
-    // public function getTimeSlots(): Collection
-    // {
-    //     return $this->timeSlots;
-    // }
+    public function getTimeSlots(): Collection
+    {
+        return $this->timeSlots;
+    }
 
-//     public function addTimeSlot(TimeSlot $timeSlot): static
-//     {
-//         if (!$this->timeSlots->contains($timeSlot)) {
-//             $this->timeSlots->add($timeSlot);
-//             $timeSlot->setBand($this);
-//         }
-// 
-//         return $this;
-//     }
+    public function addTimeSlot(TimeSlot $timeSlot): static
+    {
+        if (!$this->timeSlots->contains($timeSlot)) {
+            $this->timeSlots->add($timeSlot);
+            $timeSlot->setBand($this);
+        }
 
-//     public function removeTimeSlot(TimeSlot $timeSlot): static
-//     {
-//         if ($this->timeSlots->removeElement($timeSlot)) {
-//             // set the owning side to null (unless already changed)
-//             if ($timeSlot->getBand() === $this) {
-//                 $timeSlot->setBand(null);
-//             }
-//         }
-// 
-//         return $this;
-//     }
+        return $this;
+    }
+
+    public function removeTimeSlot(TimeSlot $timeSlot): static
+    {
+        if ($this->timeSlots->removeElement($timeSlot)) {
+            // set the owning side to null (unless already changed)
+            if ($timeSlot->getBand() === $this) {
+                $timeSlot->setBand(null);
+            }
+        }
+
+        return $this;
+    }
+
+public function getSlug(): ?string
+{
+    return $this->slug;
+}
+
+public function setSlug(string $slug): static
+{
+    $this->slug = $slug;
+
+    return $this;
+}
 }
