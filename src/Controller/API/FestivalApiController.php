@@ -5,12 +5,12 @@ namespace App\Controller\API;
 use App\Repository\FestivalRepository;
 use App\Repository\StageRepository;
 use App\Repository\TimeSlotRepository;
-use App\Entity\TimeSlot;
 use App\Repository\BandRepository;
 use App\Services\SerializerService;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\HttpFoundation\Request;
 
 class FestivalApiController extends AbstractController
 {
@@ -24,7 +24,7 @@ class FestivalApiController extends AbstractController
     }
     
     #[Route('/api/festival/{festival}/{bandSlug}', name: 'festival-band')]
-    public function listFestivalBand(BandRepository $bandRepository, string $bandSlug, string $festival): JsonResponse
+    public function listFestivalBand(BandRepository $bandRepository, string $bandSlug, string $festival, Request $request): JsonResponse
     {
         $serializer = new SerializerService();
         $festivalBand = $bandRepository->findOneBy(['slug' => $bandSlug]);
@@ -34,8 +34,8 @@ class FestivalApiController extends AbstractController
           'id' => $festivalBand->getId(),
           'name' => $festivalBand->getName(),
           'gerne' => $festivalBand->getGenre(),
-          'logo' => $festivalBand->getLogo(),
-          'image' => $festivalBand->getImage(),
+          'logo' => $request->getSchemeAndHttpHost() . '/images/band/logos/' . $festivalBand->getLogo(),
+          'image' => $request->getSchemeAndHttpHost() . '/images/band/images/' . $festivalBand->getImage(),
           'instagram' => $festivalBand->getInstagram(),
           'spotify' => $festivalBand->getSpotify(),
           'appleMusic' => $festivalBand->getAppleMusic(),

@@ -25,8 +25,6 @@ class TimeSlot
 
     #[ORM\ManyToOne(inversedBy: 'timeSlots')]
     private ?Stage $stage = null;
-    
-    private ?Festival $festival = null;
 
     public function getId(): ?int
     {
