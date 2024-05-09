@@ -45,4 +45,16 @@ class TimeSlotRepository extends ServiceEntityRepository
     //            ->getOneOrNullResult()
     //        ;
     //    }
+
+    public function findNextTimeSlots(string $dateNow, string $dateLater): array
+    {
+        return $this->createQueryBuilder('t')
+            ->andWhere('t.startTime > :dateNow')
+            ->andWhere('t.startTime < :dateLater')
+            ->setParameter('dateNow', $dateNow)
+            ->setParameter('dateLater', $dateLater)
+            ->orderBy('t.startTime', 'ASC')
+            ->getQuery()
+            ->getResult();
+    }
 }
