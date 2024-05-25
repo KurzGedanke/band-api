@@ -2,9 +2,11 @@
 
 namespace App\Repository;
 
+use App\Entity\Stage;
 use App\Entity\TimeSlot;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
+use Symfony\Component\Validator\Constraints\Time;
 
 /**
  * @extends ServiceEntityRepository<TimeSlot>
@@ -46,7 +48,7 @@ class TimeSlotRepository extends ServiceEntityRepository
     //        ;
     //    }
 
-    public function findNextTimeSlots(string $dateNow, string $dateLater): array
+    public function findNextTimeSlotsBasedOn5Minutes(string $dateNow, string $dateLater): array
     {
         return $this->createQueryBuilder('t')
             ->andWhere('t.startTime > :dateNow')
@@ -56,5 +58,16 @@ class TimeSlotRepository extends ServiceEntityRepository
             ->orderBy('t.startTime', 'ASC')
             ->getQuery()
             ->getResult();
+    }
+
+    public function findNextTimeSlots(string $dateNow): TimeSlot
+    {
+        return $this->createQueryBuilder('t')
+            ->andWhere('t.startTime > :dateNow')
+            ->setParameter('dateNow', $dateNow)
+            ->orderBy('t.startTime', 'ASC')
+            ->setMaxResults(1)
+            ->getQuery()
+            ->getOneOrNullResult();
     }
 }

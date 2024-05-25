@@ -35,7 +35,7 @@ class SendBandReminderCommand extends Command
         $dateNow = date('Y-m-d H:i:00', time());
         $dateLater = date('Y-m-d H:i:00', (time() + 5 * 60 ));
 
-        $timeSlots = $this->timeSlotRepository->findNextTimeSlots($dateNow, $dateLater);
+        $timeSlots = $this->timeSlotRepository->findNextTimeSlotsBasedOn5Minutes($dateNow, $dateLater);
 
         foreach ($timeSlots as $timeSlot) {
             $io->comment($timeSlot->getBand()->getName());

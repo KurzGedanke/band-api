@@ -108,4 +108,28 @@ class FestivalApiController extends AbstractController
         
         return JsonResponse::fromJsonString($serializer->serializeCircularReferenceJson($timeSlotArray));
     }
+
+    #[Route('/api/festivals/{festival}/stages/{stageName}/upnext', name: 'festival-stages-upnext')]
+    public function listFestivalStagesUpNext(FestivalRepository $festivalRepository, StageRepository $stageRepository, TimeSlotRepository $timeSlotRepository, string $festival, string $stageName): JsonResponse
+    {
+        $serializer = new SerializerService();
+//        $festivals = $festivalRepository->findOneBy(['name' => $festival]);
+
+        date_default_timezone_set('Europe/Berlin');
+
+        $dateNow = date('Y-m-d H:i:00', time());
+
+//        $stage = $stageRepository->findBy(['name' => $stageName, 'festival' => $festivals]);
+        $timeSlot = $timeSlotRepository->findNextTimeSlots($dateNow);
+
+        $upNext = [];
+
+        $upNext[] = [
+            'startTime' => $timeSlot->getStartTime()->format('H:i:s d.m.Y '),
+            'band' => $timeSlot->getBand()->getName(),
+            'stage' => $timeSlot->getStage()->getName(),
+        ];
+
+        return JsonResponse::fromJsonString($serializer->serializeCircularReferenceJson($upNext));
+    }
 }
