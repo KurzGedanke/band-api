@@ -17,10 +17,17 @@ class FestivalApiController extends AbstractController
     #[Route('/api/festivals', name: 'festival-list', methods: ['GET'])]
     public function listFestivals(FestivalRepository $festivalRepository): JsonResponse
     {
-        $serializer = new SerializerService();
-        $festivals = $festivalRepository->findAll();
+        $festivals = [];
+        foreach ($festivalRepository->findAll() as $festival) {
+            $festivals[] = [
+                'id' => $festival->getId(),
+                'name' => $festival->getName(),
+                'startDate' => $festival->getStartDate()?->format('Y-m-d'),
+                'endDate' => $festival->getEndDate()?->format('Y-m-d'),
+            ];
+        }
 
-        return JsonResponse::fromJsonString($serializer->serializeCircularReferenceJson($festivals));
+        return new JsonResponse($festivals);
     }
     
     #[Route('/api/festivals/{festival}/{bandSlug}', name: 'festival-band')]
