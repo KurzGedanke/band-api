@@ -58,24 +58,25 @@ The app is now available at **http://localhost:8000**:
 
 ## API reference
 
-All endpoints are read-only (`GET`) and return JSON. `{festival}` is the festival **name**
-(URL-encoded, e.g. `Dong%20Open%20Air%202026`), `{bandSlug}` is a band slug, and
-`{stageName}` is a stage name.
+All endpoints are read-only (`GET`) and return JSON. `{festivalSlug}` is the festival **slug**
+(e.g. `dong-open-air-2026`), `{bandSlug}` is a band slug, and `{stageSlug}` is a stage slug.
+Slugs are auto-generated from the name (lower-case ASCII, e.g. `Hauptbühne` → `hauptbuhne`) and
+returned by the list endpoints.
 
 | Method | Path | Description |
 |--------|------|-------------|
 | `GET` | `/api/festivals` | List all festivals |
-| `GET` | `/api/festivals/{festival}/bands` | Bands playing a festival |
-| `GET` | `/api/festivals/{festival}/{bandSlug}` | A band's detail + its slot at the festival |
-| `GET` | `/api/festivals/{festival}/stages` | Stages of a festival |
-| `GET` | `/api/festivals/{festival}/stages/{stageName}` | A single stage |
-| `GET` | `/api/festivals/{festival}/stages/{stageName}/timeslots` | A stage's time slots (ordered) |
-| `GET` | `/api/festivals/{festival}/stages/{stageName}/upnext` | The next slot by current server time |
+| `GET` | `/api/festivals/{festivalSlug}/bands` | Bands playing a festival |
+| `GET` | `/api/festivals/{festivalSlug}/{bandSlug}` | A band's detail + its slot at the festival |
+| `GET` | `/api/festivals/{festivalSlug}/stages` | Stages of a festival |
+| `GET` | `/api/festivals/{festivalSlug}/stages/{stageSlug}` | A single stage |
+| `GET` | `/api/festivals/{festivalSlug}/stages/{stageSlug}/timeslots` | A stage's time slots (ordered) |
+| `GET` | `/api/festivals/{festivalSlug}/stages/{stageSlug}/upnext` | The next slot by current server time |
 
 **Example**
 
 ```sh
-curl "http://localhost:8000/api/festivals/Dong%20Open%20Air%202026/bands"
+curl "http://localhost:8000/api/festivals/dong-open-air-2026/bands"
 ```
 
 ### Interactive docs
@@ -93,6 +94,7 @@ npx @redocly/cli lint openapi.yaml
 |---------|-------------|
 | `app:create-admin <email> <password>` | Create or update an admin user |
 | `app:seed:dong-open-air [--no-images]` | Seed the Dong Open Air 2026 festival, stages, bands and time slots |
+| `app:backfill-slugs` | Generate slugs for existing festivals and stages (run once after adding the slug columns) |
 | `send:band-reminder` | Find time slots starting in the next 5 minutes |
 
 ## Project structure
