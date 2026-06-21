@@ -94,6 +94,7 @@ npx @redocly/cli lint openapi.yaml
 |---------|-------------|
 | `app:create-admin <email> <password>` | Create or update an admin user |
 | `app:seed:dong-open-air [--no-images]` | Seed the Dong Open Air 2026 festival, stages, bands and time slots |
+| `app:seed:band-details [--overwrite]` | Fill genre, social links and descriptions for the Dong Open Air 2026 bands |
 | `app:backfill-slugs` | Generate slugs for existing festivals and stages (run once after adding the slug columns) |
 | `send:band-reminder` | Find time slots starting in the next 5 minutes |
 
