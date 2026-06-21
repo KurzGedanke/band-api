@@ -1,0 +1,338 @@
+openapi: 3.0.3
+info:
+  title: Band API
+  version: "1.0.0"
+  description: |
+    Read-only JSON API for festival line-ups, stages, bands and time slots.
+
+    Notes / quirks reflected by the current implementation:
+    - `{festival}` path parameter is the festival **name** (e.g. `Dong Open Air 2026`), URL-encoded — not an id or slug.
+    - `{bandSlug}` is the band **slug** (e.g. `subway-to-sally`); `{stageName}` is the stage **name** (e.g. `Hauptbühne`).
+    - `logo` / `image` are returned as absolute URLs built as `{host}/images/band/{logos|images}/{filename}`. When the underlying value is null the URL ends with a trailing slash.
+    - Date/time fields are serialized by Symfony's ObjectNormalizer as a **verbose PHP `DateTime` object** (`$ref: PhpDateTime`), *except* `GET .../upnext`, which returns a preformatted string.
+servers:
+  - url: http://127.0.0.1:8000
+    description: Symfony local dev server
+  - url: http://localhost:8080
+    description: Alternative local
+
+paths:
+  /api/festivals:
+    get:
+      operationId: listFestivals
+      summary: List all festivals
+      description: Returns all festivals as fully serialized entities, including nested bands and stages.
+      responses:
+        "200":
+          description: Array of festivals
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Festival"
+
+  /api/festivals/{festival}/bands:
+    get:
+      operationId: listFestivalBands
+      summary: List the bands playing a festival
+      parameters:
+        - name: festival
+          in: path
+          required: true
+          description: Festival name (URL-encoded), e.g. `Dong%20Open%20Air%202026`
+          schema: { type: string }
+          example: "Dong Open Air 2026"
+      responses:
+        "200":
+          description: Array of bands
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Band"
+
+  /api/festivals/{festival}/stages:
+    get:
+      operationId: listFestivalStages
+      summary: List the stages of a festival
+      parameters:
+        - name: festival
+          in: path
+          required: true
+          description: Festival name (URL-encoded), e.g. `Dong%20Open%20Air%202026`
+          schema: { type: string }
+          example: "Dong Open Air 2026"
+      responses:
+        "200":
+          description: Array of stages (fully serialized entities)
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Stage"
+
+  /api/festivals/{festival}/stages/{stageName}:
+    get:
+      operationId: getFestivalStageInfo
+      summary: Get a stage of a festival by name
+      parameters:
+        - name: festival
+          in: path
+          required: true
+          description: Festival name (URL-encoded), e.g. `Dong%20Open%20Air%202026`
+          schema: { type: string }
+          example: "Dong Open Air 2026"
+        - name: stageName
+          in: path
+          required: true
+          description: Stage name (URL-encoded)
+          schema: { type: string }
+          example: "Hauptbühne"
+      responses:
+        "200":
+          description: Array of matching stages (fully serialized entities)
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Stage"
+
+  /api/festivals/{festival}/stages/{stageName}/timeslots:
+    get:
+      operationId: listStageTimeSlots
+      summary: List the time slots of a stage, ordered by start time
+      parameters:
+        - name: festival
+          in: path
+          required: true
+          description: Festival name (URL-encoded), e.g. `Dong%20Open%20Air%202026`
+          schema: { type: string }
+          example: "Dong Open Air 2026"
+        - name: stageName
+          in: path
+          required: true
+          description: Stage name (URL-encoded)
+          schema: { type: string }
+          example: "Hauptbühne"
+      responses:
+        "200":
+          description: Array of time slots
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/TimeSlot"
+
+  /api/festivals/{festival}/stages/{stageName}/upnext:
+    get:
+      operationId: getStageUpNext
+      summary: Get the next time slot (globally, by current server time)
+      description: |
+        Returns the next upcoming time slot based on the server's current time (Europe/Berlin).
+        Note: the current implementation ignores the `{festival}` and `{stageName}` parameters
+        and resolves the next slot globally.
+      parameters:
+        - name: festival
+          in: path
+          required: true
+          description: Festival name (URL-encoded), e.g. `Dong%20Open%20Air%202026`
+          schema: { type: string }
+          example: "Dong Open Air 2026"
+        - name: stageName
+          in: path
+          required: true
+          description: Stage name (URL-encoded)
+          schema: { type: string }
+          example: "Hauptbühne"
+      responses:
+        "200":
+          description: Single-element array with the next slot
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/UpNext"
+
+  /api/festivals/{festival}/{bandSlug}:
+    get:
+      operationId: getFestivalBand
+      summary: Get a band's detail and its slot at a festival
+      description: |
+        Returns the band plus its start/end time and stage for the given festival.
+        Catch-all route — declared with lower priority than the literal `/bands` and `/stages` routes.
+      parameters:
+        - name: festival
+          in: path
+          required: true
+          description: Festival name (URL-encoded), e.g. `Dong%20Open%20Air%202026`
+          schema: { type: string }
+          example: "Dong Open Air 2026"
+        - name: bandSlug
+          in: path
+          required: true
+          description: Band slug
+          schema: { type: string }
+          example: "subway-to-sally"
+      responses:
+        "200":
+          description: Band detail with slot info
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/BandDetail"
+
+components:
+  schemas:
+    Band:
+      type: object
+      description: Band as returned by `GET /api/festivals/{festival}/bands`.
+      properties:
+        id: { type: integer, example: 8 }
+        name: { type: string, example: "Amorphis" }
+        slug: { type: string, example: "amorphis" }
+        genre: { type: string, nullable: true, example: null }
+        logo:
+          type: string
+          description: Absolute URL; ends in a trailing slash when no logo is set.
+          example: "http://127.0.0.1:8000/images/band/logos/"
+        image:
+          type: string
+          example: "http://127.0.0.1:8000/images/band/images/amorphis.jpg"
+        instagram: { type: string, nullable: true }
+        spotify: { type: string, nullable: true }
+        appleMusic: { type: string, nullable: true }
+        bandcamp: { type: string, nullable: true }
+        description: { type: string, nullable: true }
+
+    BandDetail:
+      type: object
+      description: Returned by `GET /api/festivals/{festival}/{bandSlug}`.
+      properties:
+        band:
+          type: object
+          properties:
+            id: { type: integer, example: 8 }
+            name: { type: string, example: "Amorphis" }
+            genre:
+              type: string
+              nullable: true
+            logo: { type: string, example: "http://127.0.0.1:8000/images/band/logos/" }
+            image: { type: string, example: "http://127.0.0.1:8000/images/band/images/amorphis.jpg" }
+            instagram: { type: string, nullable: true }
+            spotify: { type: string, nullable: true }
+            appleMusic: { type: string, nullable: true }
+            bandcamp: { type: string, nullable: true }
+            description:
+              type: string
+              nullable: true
+        startTime:
+          allOf: [{ $ref: "#/components/schemas/PhpDateTime" }]
+          description: Present only when the band has a time slot at this festival.
+        endTime:
+          allOf: [{ $ref: "#/components/schemas/PhpDateTime" }]
+          nullable: true
+        stage:
+          type: string
+          description: Stage name. Present only when the band has a time slot.
+          example: "Hauptbühne"
+
+    TimeSlot:
+      type: object
+      description: Returned by `GET /api/festivals/{festival}/stages/{stageName}/timeslots`.
+      properties:
+        startTime: { $ref: "#/components/schemas/PhpDateTime" }
+        endTime:
+          allOf: [{ $ref: "#/components/schemas/PhpDateTime" }]
+          nullable: true
+        band: { type: string, example: "Aereum" }
+        bandSlug: { type: string, example: "aereum" }
+        bandId: { type: integer, example: 1 }
+        stage: { type: string, example: "Hauptbühne" }
+
+    UpNext:
+      type: object
+      description: Returned by `GET .../upnext`. Here `startTime` is a preformatted string, not a PhpDateTime.
+      properties:
+        startTime:
+          type: string
+          description: Formatted as `H:i:s d.m.Y ` (trailing space included).
+          example: "21:00:00 16.07.2026 "
+        band: { type: string, example: "Amorphis" }
+        stage: { type: string, example: "Hauptbühne" }
+
+    Festival:
+      type: object
+      description: |
+        Fully serialized Festival entity (`GET /api/festivals`). `bands` and `stages`
+        are nested; circular references are replaced by the related entity's name string.
+      properties:
+        id: { type: integer, example: 1 }
+        startDate: { $ref: "#/components/schemas/PhpDateTime" }
+        endDate: { $ref: "#/components/schemas/PhpDateTime" }
+        name: { type: string, example: "Dong Open Air 2026" }
+        bands:
+          type: array
+          items:
+            oneOf:
+              - $ref: "#/components/schemas/Band"
+              - type: string
+                description: Band name, when emitted via the circular-reference handler.
+        stages:
+          type: array
+          items:
+            oneOf:
+              - $ref: "#/components/schemas/Stage"
+              - type: string
+
+    Stage:
+      type: object
+      description: Fully serialized Stage entity.
+      properties:
+        id: { type: integer, example: 1 }
+        name: { type: string, example: "Hauptbühne" }
+        location: { type: string, nullable: true, example: "Dong, Neukirchen-Vluyn" }
+        timeSlots:
+          type: array
+          items: { type: object }
+        festival:
+          oneOf:
+            - $ref: "#/components/schemas/Festival"
+            - type: string
+              description: Festival name, when emitted via the circular-reference handler.
+
+    PhpDateTime:
+      type: object
+      description: |
+        Symfony ObjectNormalizer serialization of a PHP `\DateTime`. Clients typically
+        only need `timestamp` (Unix seconds, UTC). Other keys describe the timezone.
+      properties:
+        timestamp:
+          type: integer
+          description: Unix timestamp in seconds.
+          example: 1784160000
+        offset:
+          type: integer
+          example: 0
+        microsecond:
+          type: integer
+          example: 0
+        timezone:
+          type: object
+          properties:
+            name: { type: string, example: "UTC" }
+            transitions:
+              type: array
+              items: { type: object }
+            location: { type: object }
+      example:
+        timestamp: 1784160000
+        offset: 0
+        microsecond: 0
+        timezone:
+          name: "UTC"
