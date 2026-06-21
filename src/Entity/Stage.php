@@ -6,6 +6,7 @@ use App\Repository\StageRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\String\Slugger\AsciiSlugger;
 
 #[ORM\Entity(repositoryClass: StageRepository::class)]
 class Stage
@@ -17,6 +18,10 @@ class Stage
 
     #[ORM\Column(length: 255)]
     private ?string $name = null;
+
+    // Unique per festival, not globally (two festivals may both have "Hauptbühne").
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $slug = null;
 
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $location = null;
@@ -45,6 +50,20 @@ class Stage
     public function setName(string $name): static
     {
         $this->name = $name;
+        // Slug is derived from the name (auto-generated, see API routes).
+        $this->slug = (new AsciiSlugger())->slug($name)->lower()->toString();
+
+        return $this;
+    }
+
+    public function getSlug(): ?string
+    {
+        return $this->slug;
+    }
+
+    public function setSlug(string $slug): static
+    {
+        $this->slug = $slug;
 
         return $this;
     }

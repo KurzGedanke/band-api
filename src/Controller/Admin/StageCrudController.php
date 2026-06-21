@@ -19,6 +19,10 @@ class StageCrudController extends AbstractCrudController
     {
         return [
             TextField::new('name'),
+            TextField::new('slug')
+                ->setFormTypeOption('disabled', true)
+                ->setHelp('Auto-generated from the name; used in API URLs.')
+                ->hideWhenCreating(),
             TextField::new('location'),
             AssociationField::new('timeSlots'),
             AssociationField::new('festival'),

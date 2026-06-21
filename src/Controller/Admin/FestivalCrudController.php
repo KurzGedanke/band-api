@@ -19,6 +19,10 @@ class FestivalCrudController extends AbstractCrudController
     {
         return [
             TextField::new('name'),
+            TextField::new('slug')
+                ->setFormTypeOption('disabled', true)
+                ->setHelp('Auto-generated from the name; used in API URLs.')
+                ->hideWhenCreating(),
             DateField::new('startDate'),
             DateField::new('endDate'),
             AssociationField::new('bands'),

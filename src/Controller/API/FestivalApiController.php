@@ -22,6 +22,7 @@ class FestivalApiController extends AbstractController
             $festivals[] = [
                 'id' => $festival->getId(),
                 'name' => $festival->getName(),
+                'slug' => $festival->getSlug(),
                 'startDate' => $festival->getStartDate()?->format('Y-m-d'),
                 'endDate' => $festival->getEndDate()?->format('Y-m-d'),
             ];
@@ -29,14 +30,14 @@ class FestivalApiController extends AbstractController
 
         return new JsonResponse($festivals);
     }
-    
-    #[Route('/api/festivals/{festival}/{bandSlug}', name: 'festival-band')]
-    public function listFestivalBand(BandRepository $bandRepository, string $bandSlug, string $festival, Request $request): JsonResponse
+
+    #[Route('/api/festivals/{festivalSlug}/{bandSlug}', name: 'festival-band')]
+    public function listFestivalBand(BandRepository $bandRepository, string $bandSlug, string $festivalSlug, Request $request): JsonResponse
     {
         $serializer = new SerializerService();
         $festivalBand = $bandRepository->findOneBy(['slug' => $bandSlug]);
         $fesivalBandTimeSlot = $festivalBand->getTimeSlots() ?? [];
-        
+
         $bandArray['band'] = [
           'id' => $festivalBand->getId(),
           'name' => $festivalBand->getName(),
@@ -49,13 +50,13 @@ class FestivalApiController extends AbstractController
           'bandcamp' => $festivalBand->getBandcamp(),
           'description' => $festivalBand->getDescription(),
         ];
-        
+
         if(isset($fesivalBandTimeSlot)){
           foreach($fesivalBandTimeSlot as $timeslot) {
-            if($timeslot->getFestival()->getName() === $festival)
+            if($timeslot->getFestival()->getSlug() === $festivalSlug)
               $bandTimeSlot = $timeslot;
           };
-          
+
           $bandArray['startTime'] = $bandTimeSlot->getStartTime();
           $bandArray['endTime'] = $bandTimeSlot->getEndTime();
           $bandArray['stage'] = $bandTimeSlot->getStage()->getName();
@@ -64,11 +65,11 @@ class FestivalApiController extends AbstractController
         return JsonResponse::fromJsonString($serializer->serializeCircularReferenceJson($bandArray));
     }
 
-    #[Route('/api/festivals/{festival}/bands', name: 'festival-bands', priority: 1)]
-    public function listFestivalBands(FestivalRepository $festivalRepository, string $festival, Request $request): JsonResponse
+    #[Route('/api/festivals/{festivalSlug}/bands', name: 'festival-bands', priority: 1)]
+    public function listFestivalBands(FestivalRepository $festivalRepository, string $festivalSlug, Request $request): JsonResponse
     {
         $serializer = new SerializerService();
-        $festivalEntity = $festivalRepository->findOneBy(['name' => $festival]);
+        $festivalEntity = $festivalRepository->findOneBy(['slug' => $festivalSlug]);
 
         $bands = [];
         foreach ($festivalEntity->getBands() as $band) {
@@ -89,61 +90,78 @@ class FestivalApiController extends AbstractController
 
         return JsonResponse::fromJsonString($serializer->serializeCircularReferenceJson($bands));
     }
-    
-    #[Route('/api/festivals/{festival}/stages', name: 'festival-stages', priority: 1)]
-    public function listFestivalStages(FestivalRepository $festivalRepository, string $festival): JsonResponse
-    {
-        $serializer = new SerializerService();
-        $festivalStages = $festivalRepository->findOneBy(['name' => $festival]);
-    
-        return JsonResponse::fromJsonString($serializer->serializeCircularReferenceJson($festivalStages->getStages()));
-    }
-    
-    #[Route('/api/festivals/{festival}/stages/{stageName}', name: 'festival-stages-info')]
-    public function listFestivalStagesInfo(FestivalRepository $festivalRepository, StageRepository $stageRepository, string $festival, string $stageName): JsonResponse
-    {
-        $serializer = new SerializerService();
-        $festivals = $festivalRepository->findOneBy(['name' => $festival]);
 
-        $stage = $stageRepository->findBy(['name' => $stageName, 'festival' => $festivals]);
-    
-        return JsonResponse::fromJsonString($serializer->serializeCircularReferenceJson($stage));
+    #[Route('/api/festivals/{festivalSlug}/stages', name: 'festival-stages', priority: 1)]
+    public function listFestivalStages(FestivalRepository $festivalRepository, string $festivalSlug): JsonResponse
+    {
+        $festivalEntity = $festivalRepository->findOneBy(['slug' => $festivalSlug]);
+
+        $stages = [];
+        foreach ($festivalEntity?->getStages() ?? [] as $stage) {
+            $stages[] = [
+                'id' => $stage->getId(),
+                'name' => $stage->getName(),
+                'slug' => $stage->getSlug(),
+                'location' => $stage->getLocation(),
+            ];
+        }
+
+        return new JsonResponse($stages);
     }
-    
-    #[Route('/api/festivals/{festival}/stages/{stageName}/timeslots', name: 'festival-stages-timeslots')]
-    public function listFestivalStagesTimeSlots(FestivalRepository $festivalRepository, StageRepository $stageRepository, TimeSlotRepository $timeSlotRepository, string $festival, string $stageName): JsonResponse
+
+    #[Route('/api/festivals/{festivalSlug}/stages/{stageSlug}', name: 'festival-stages-info')]
+    public function listFestivalStagesInfo(FestivalRepository $festivalRepository, StageRepository $stageRepository, string $festivalSlug, string $stageSlug): JsonResponse
+    {
+        $festivalEntity = $festivalRepository->findOneBy(['slug' => $festivalSlug]);
+
+        $stages = [];
+        foreach ($stageRepository->findBy(['slug' => $stageSlug, 'festival' => $festivalEntity]) as $stage) {
+            $stages[] = [
+                'id' => $stage->getId(),
+                'name' => $stage->getName(),
+                'slug' => $stage->getSlug(),
+                'location' => $stage->getLocation(),
+            ];
+        }
+
+        return new JsonResponse($stages);
+    }
+
+    #[Route('/api/festivals/{festivalSlug}/stages/{stageSlug}/timeslots', name: 'festival-stages-timeslots')]
+    public function listFestivalStagesTimeSlots(FestivalRepository $festivalRepository, StageRepository $stageRepository, TimeSlotRepository $timeSlotRepository, string $festivalSlug, string $stageSlug): JsonResponse
     {
         $serializer = new SerializerService();
-        $festivals = $festivalRepository->findOneBy(['name' => $festival]);
-    
-        $stage = $stageRepository->findBy(['name' => $stageName, 'festival' => $festivals]);
+        $festivals = $festivalRepository->findOneBy(['slug' => $festivalSlug]);
+
+        $stage = $stageRepository->findBy(['slug' => $stageSlug, 'festival' => $festivals]);
         $timeSlots = $timeSlotRepository->findBy(['stage' => $stage], ['startTime' => 'ASC']);
-        
+
         $timeSlotArray = [];
-        
+
         foreach($timeSlots as $timeslot) {
         $timeSlotArray[] = ['startTime' => $timeslot->getStartTime(),
         'endTime' => $timeslot->getEndTime(),
         'band' => $timeslot->getBand()->getName(),
         'bandSlug' => $timeslot->getBand()->getSlug(),
         'bandId' => $timeslot->getBand()->getId(),
-        'stage' => $timeslot->getStage()->getName()];
+        'stage' => $timeslot->getStage()->getName(),
+        'stageSlug' => $timeslot->getStage()->getSlug()];
         };
-        
+
         return JsonResponse::fromJsonString($serializer->serializeCircularReferenceJson($timeSlotArray));
     }
 
-    #[Route('/api/festivals/{festival}/stages/{stageName}/upnext', name: 'festival-stages-upnext')]
-    public function listFestivalStagesUpNext(FestivalRepository $festivalRepository, StageRepository $stageRepository, TimeSlotRepository $timeSlotRepository, string $festival, string $stageName): JsonResponse
+    #[Route('/api/festivals/{festivalSlug}/stages/{stageSlug}/upnext', name: 'festival-stages-upnext')]
+    public function listFestivalStagesUpNext(FestivalRepository $festivalRepository, StageRepository $stageRepository, TimeSlotRepository $timeSlotRepository, string $festivalSlug, string $stageSlug): JsonResponse
     {
         $serializer = new SerializerService();
-//        $festivals = $festivalRepository->findOneBy(['name' => $festival]);
+//        $festivals = $festivalRepository->findOneBy(['slug' => $festivalSlug]);
 
         date_default_timezone_set('Europe/Berlin');
 
         $dateNow = date('Y-m-d H:i:00', time());
 
-//        $stage = $stageRepository->findBy(['name' => $stageName, 'festival' => $festivals]);
+//        $stage = $stageRepository->findBy(['slug' => $stageSlug, 'festival' => $festivals]);
         $timeSlot = $timeSlotRepository->findNextTimeSlots($dateNow);
 
         $upNext = [];
