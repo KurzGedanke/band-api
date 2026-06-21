@@ -14,16 +14,17 @@
         "doctrine/doctrine-migrations-bundle": "^3.3",
         "doctrine/orm": "^3.1",
         "easycorp/easyadmin-bundle": "^4.9",
-        "symfony/asset-mapper": "7.0.*",
-        "symfony/console": "7.0.*",
-        "symfony/dotenv": "7.0.*",
+        "nelmio/api-doc-bundle": "^5.10",
+        "symfony/asset-mapper": "7.4.*",
+        "symfony/console": "7.4.*",
+        "symfony/dotenv": "7.4.*",
         "symfony/flex": "^2",
-        "symfony/framework-bundle": "7.0.*",
-        "symfony/mime": "7.0.*",
-        "symfony/runtime": "7.0.*",
-        "symfony/security-bundle": "7.0.*",
-        "symfony/serializer": "7.0.*",
-        "symfony/yaml": "7.0.*"
+        "symfony/framework-bundle": "7.4.*",
+        "symfony/mime": "7.4.*",
+        "symfony/runtime": "7.4.*",
+        "symfony/security-bundle": "7.4.*",
+        "symfony/serializer": "7.4.*",
+        "symfony/yaml": "7.4.*"
     },
     "config": {
         "allow-plugins": {
@@ -72,7 +73,7 @@
     "extra": {
         "symfony": {
             "allow-contrib": false,
-            "require": "7.0.*"
+            "require": "7.4.*"
         }
     },
     "require-dev": {

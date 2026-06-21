@@ -33,14 +33,14 @@ class FestivalApiController extends AbstractController
         $bandArray['band'] = [
           'id' => $festivalBand->getId(),
           'name' => $festivalBand->getName(),
-          'gerne' => $festivalBand->getGenre(),
+          'genre' => $festivalBand->getGenre(),
           'logo' => $request->getSchemeAndHttpHost() . '/images/band/logos/' . $festivalBand->getLogo(),
           'image' => $request->getSchemeAndHttpHost() . '/images/band/images/' . $festivalBand->getImage(),
           'instagram' => $festivalBand->getInstagram(),
           'spotify' => $festivalBand->getSpotify(),
           'appleMusic' => $festivalBand->getAppleMusic(),
           'bandcamp' => $festivalBand->getBandcamp(),
-          'descroption' => $festivalBand->getDescription(),
+          'description' => $festivalBand->getDescription(),
         ];
         
         if(isset($fesivalBandTimeSlot)){
@@ -57,16 +57,33 @@ class FestivalApiController extends AbstractController
         return JsonResponse::fromJsonString($serializer->serializeCircularReferenceJson($bandArray));
     }
 
-    #[Route('/api/festivals/{festival}/bands', name: 'festival-bands')]
-    public function listFestivalBands(FestivalRepository $festivalRepository, string $festival): JsonResponse
+    #[Route('/api/festivals/{festival}/bands', name: 'festival-bands', priority: 1)]
+    public function listFestivalBands(FestivalRepository $festivalRepository, string $festival, Request $request): JsonResponse
     {
         $serializer = new SerializerService();
-        $festivalBands = $festivalRepository->findOneBy(['name' => $festival]);
+        $festivalEntity = $festivalRepository->findOneBy(['name' => $festival]);
 
-        return JsonResponse::fromJsonString($serializer->serializeCircularReferenceJson($festivalBands->getBands()));
+        $bands = [];
+        foreach ($festivalEntity->getBands() as $band) {
+            $bands[] = [
+                'id' => $band->getId(),
+                'name' => $band->getName(),
+                'slug' => $band->getSlug(),
+                'genre' => $band->getGenre(),
+                'logo' => $request->getSchemeAndHttpHost() . '/images/band/logos/' . $band->getLogo(),
+                'image' => $request->getSchemeAndHttpHost() . '/images/band/images/' . $band->getImage(),
+                'instagram' => $band->getInstagram(),
+                'spotify' => $band->getSpotify(),
+                'appleMusic' => $band->getAppleMusic(),
+                'bandcamp' => $band->getBandcamp(),
+                'description' => $band->getDescription(),
+            ];
+        }
+
+        return JsonResponse::fromJsonString($serializer->serializeCircularReferenceJson($bands));
     }
     
-    #[Route('/api/festivals/{festival}/stages', name: 'festival-stages')]
+    #[Route('/api/festivals/{festival}/stages', name: 'festival-stages', priority: 1)]
     public function listFestivalStages(FestivalRepository $festivalRepository, string $festival): JsonResponse
     {
         $serializer = new SerializerService();
