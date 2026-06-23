@@ -5,6 +5,7 @@ namespace App\Entity;
 use App\Repository\BandRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
+use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: BandRepository::class)]
@@ -39,8 +40,19 @@ class Band
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $bandcamp = null;
 
-    #[ORM\Column(length: 255, nullable: true)]
-    private ?string $description = null;
+    /**
+     * German description — the default language served to clients that do not
+     * request English explicitly.
+     */
+    #[ORM\Column(type: Types::TEXT, nullable: true)]
+    private ?string $descriptionDe = null;
+
+    /**
+     * English description — optional. Clients fall back to {@see $descriptionDe}
+     * when it is null.
+     */
+    #[ORM\Column(type: Types::TEXT, nullable: true)]
+    private ?string $descriptionEn = null;
 
     #[ORM\ManyToMany(targetEntity: Festival::class, mappedBy: 'bands', cascade: ['persist'])]
     private Collection $festivals;
@@ -158,14 +170,26 @@ class Band
         return $this;
     }
 
-    public function getDescription(): ?string
+    public function getDescriptionDe(): ?string
     {
-        return $this->description;
+        return $this->descriptionDe;
     }
 
-    public function setDescription(?string $description): static
+    public function setDescriptionDe(?string $descriptionDe): static
     {
-        $this->description = $description;
+        $this->descriptionDe = $descriptionDe;
+
+        return $this;
+    }
+
+    public function getDescriptionEn(): ?string
+    {
+        return $this->descriptionEn;
+    }
+
+    public function setDescriptionEn(?string $descriptionEn): static
+    {
+        $this->descriptionEn = $descriptionEn;
 
         return $this;
     }

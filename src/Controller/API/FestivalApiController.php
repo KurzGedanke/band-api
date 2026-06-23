@@ -48,7 +48,10 @@ class FestivalApiController extends AbstractController
           'spotify' => $festivalBand->getSpotify(),
           'appleMusic' => $festivalBand->getAppleMusic(),
           'bandcamp' => $festivalBand->getBandcamp(),
-          'description' => $festivalBand->getDescription(),
+          'description' => [
+            'de' => $festivalBand->getDescriptionDe(),
+            'en' => $festivalBand->getDescriptionEn(),
+          ],
         ];
 
         if(isset($fesivalBandTimeSlot)){
@@ -84,7 +87,10 @@ class FestivalApiController extends AbstractController
                 'spotify' => $band->getSpotify(),
                 'appleMusic' => $band->getAppleMusic(),
                 'bandcamp' => $band->getBandcamp(),
-                'description' => $band->getDescription(),
+                'description' => [
+                    'de' => $band->getDescriptionDe(),
+                    'en' => $band->getDescriptionEn(),
+                ],
             ];
         }
 

@@ -10,6 +10,7 @@ info:
     - `logo` / `image` are returned as absolute URLs built as `{host}/images/band/{logos|images}/{filename}`. When the underlying value is null the URL ends with a trailing slash.
     - `GET /api/festivals`, `.../stages` and `.../stages/{stageSlug}` return compact arrays. `startDate` / `endDate` are `YYYY-MM-DD` strings.
     - On the time-slot and band-detail endpoints, `startTime` / `endTime` are still serialized by Symfony's ObjectNormalizer as a **verbose PHP `DateTime` object** (`$ref: PhpDateTime`). `GET .../upnext` returns a preformatted string.
+    - `description` is a **localized object** (`$ref: LocalizedText`) with a `de` (German, the default language) and an `en` (English) field. Either field may be `null`. Clients should display `de` by default and fall back to it when the user's locale is English but `en` is `null` (or vice versa).
 servers:
   - url: https://bands.baphomet.club
     description: Production
@@ -188,7 +189,9 @@ components:
         spotify: { type: string, nullable: true }
         appleMusic: { type: string, nullable: true }
         bandcamp: { type: string, nullable: true }
-        description: { type: string, nullable: true }
+        description:
+          allOf: [{ $ref: "#/components/schemas/LocalizedText" }]
+          description: Localized band description (German default + English).
 
     Stage:
       type: object
@@ -218,8 +221,8 @@ components:
             appleMusic: { type: string, nullable: true }
             bandcamp: { type: string, nullable: true }
             description:
-              type: string
-              nullable: true
+              allOf: [{ $ref: "#/components/schemas/LocalizedText" }]
+              description: Localized band description (German default + English).
         startTime:
           allOf: [{ $ref: "#/components/schemas/PhpDateTime" }]
           description: Present only when the band has a time slot at this festival.
@@ -255,6 +258,26 @@ components:
           example: "21:00:00 16.07.2026 "
         band: { type: string, example: "Amorphis" }
         stage: { type: string, example: "Hauptbühne" }
+
+    LocalizedText:
+      type: object
+      description: |
+        A piece of text in the API's supported languages. `de` (German) is the
+        default and should be shown unless the client explicitly prefers English.
+        Either field may be null when no copy exists for that language; clients
+        fall back to the other language in that case.
+      properties:
+        de:
+          type: string
+          nullable: true
+          description: German text (default language).
+          example: "Melodic-Death- und Folk-Metal-Band aus Duisburg …"
+        en:
+          type: string
+          nullable: true
+          description: English text. Null when no English copy is available.
+          example: "Melodic death and folk metal band from Duisburg, Germany …"
+      required: [de, en]
 
     PhpDateTime:
       type: object
