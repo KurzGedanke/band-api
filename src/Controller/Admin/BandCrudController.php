@@ -34,7 +34,8 @@ class BandCrudController extends AbstractCrudController
             TextField::new('spotify'),
             TextField::new('apple_music'),
             TextField::new('bandcamp'),
-            TextEditorField::new('description'),
+            TextEditorField::new('descriptionDe', 'Description (DE)'),
+            TextEditorField::new('descriptionEn', 'Description (EN)'),
             ];
     }
 }
